@@ -1,5 +1,5 @@
 import { Image, ImageBackground, Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,7 +11,9 @@ import UserGuideScreen from './screens/UserGuideScreen';
 import HelpScreen from './screens/HelpScreen';
 import PatientLoginScreen from './screens/Patient_login';
 import DoctorLoginScreen from './screens/Doctor_login';
-import DashboardScreen from './screens/DoctorDashboardScreen'; 
+import DashboardScreen from './screens/DoctorDashboardScreen';
+
+import { AuthContext } from './AuthContext'; // Import AuthContext
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -22,10 +24,10 @@ const baseFontSize = Math.min(width, height) * 0.05;
 function CommonStack({ component, title }) {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name={title} 
-        component={component} 
-        options={{ 
+      <Stack.Screen
+        name={title}
+        component={component}
+        options={{
           headerTitle: () => (
             <Image
               source={require('./assets/final_cleaned_icon.png')}
@@ -52,13 +54,12 @@ function CommonStack({ component, title }) {
         }}
       />
 
-      {}
       {title === 'Home' && (
         <>
-          <Stack.Screen 
-            name="DoctorLogin" 
-            component={DoctorLoginScreen} 
-            options={{ 
+          <Stack.Screen
+            name="DoctorLogin"
+            component={DoctorLoginScreen}
+            options={{
               headerTitle: () => (
                 <Image
                   source={require('./assets/final_cleaned_icon.png')}
@@ -84,10 +85,10 @@ function CommonStack({ component, title }) {
               headerTitleAlign: 'center',
             }}
           />
-          <Stack.Screen 
-            name="PatientLogin" 
-            component={PatientLoginScreen} 
-            options={{ 
+          <Stack.Screen
+            name="PatientLogin"
+            component={PatientLoginScreen}
+            options={{
               headerTitle: () => (
                 <Image
                   source={require('./assets/final_cleaned_icon.png')}
@@ -113,10 +114,10 @@ function CommonStack({ component, title }) {
               headerTitleAlign: 'center',
             }}
           />
-          <Stack.Screen 
-            name="Dashboard" 
-            component={DashboardScreen} 
-            options={{ 
+          <Stack.Screen
+            name="Dashboard"
+            component={DashboardScreen}
+            options={{
               headerTitle: 'Dashboard',
               headerBackground: () => (
                 <Image
@@ -183,14 +184,16 @@ function CustomTabBar({ state, descriptors, navigation }) {
   );
 }
 
-//botom tabs
+//bottom tabs
 export default function Navigation() {
+  const { isLoggedIn } = useContext(AuthContext); // Add login state from context
+
   return (
     <NavigationContainer>
       <Tab.Navigator
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
-          tabBarStyle: { 
+          tabBarStyle: {
             backgroundColor: 'transparent',
             height: height * 0.1,
           },
@@ -199,43 +202,46 @@ export default function Navigation() {
           headerShown: false,
         }}
       >
-        <Tab.Screen 
-          name="Home_" 
-          options={{ 
+        <Tab.Screen
+          name="Home_"
+          options={{
             tabBarLabel: 'Home',
             iconName: 'home',
           }}
-          children={() => <CommonStack component={IndexScreen} title="Home" />} 
+          children={() => <CommonStack component={IndexScreen} title="Home" />}
         />
-        <Tab.Screen 
-          name="UserGuide_" 
-          options={{ 
-            tabBarLabel: 'Guide',
-            iconName: 'book',
-          }}
-          children={() => <CommonStack component={UserGuideScreen} title="User Guide" />} 
-        />
-        <Tab.Screen 
-          name="Contacts_" 
-          options={{ 
-            tabBarLabel: 'Contact',
-            iconName: 'address-book',
-          }}
-          children={() => <CommonStack component={ContactsScreen} title="Contacts" />} 
-        />
-        <Tab.Screen 
-          name="Help_" 
-          options={{ 
-            tabBarLabel: 'Help',
-            iconName: 'question-circle',
-          }}
-          children={() => <CommonStack component={HelpScreen} title="Help" />} 
-        />
+        {isLoggedIn && (
+          <>
+            <Tab.Screen
+              name="UserGuide_"
+              options={{
+                tabBarLabel: 'Guide',
+                iconName: 'book',
+              }}
+              children={() => <CommonStack component={UserGuideScreen} title="User Guide" />}
+            />
+            <Tab.Screen
+              name="Contacts_"
+              options={{
+                tabBarLabel: 'Contact',
+                iconName: 'address-book',
+              }}
+              children={() => <CommonStack component={ContactsScreen} title="Contacts" />}
+            />
+            <Tab.Screen
+              name="Help_"
+              options={{
+                tabBarLabel: 'Help',
+                iconName: 'question-circle',
+              }}
+              children={() => <CommonStack component={HelpScreen} title="Help" />}
+            />
+          </>
+        )}
       </Tab.Navigator>
     </NavigationContainer>
   );
 }
-
 
 const styles = StyleSheet.create({
   tabBarBackground: {

@@ -1,8 +1,11 @@
 import React from 'react';
-import Navigation from './navigation'; 
-
+import Navigation from './navigation';
+import { AuthProvider } from './AuthContext';
 
 export default function App() {
-  return <Navigation />;
+  return (
+    <AuthProvider>
+      <Navigation />
+    </AuthProvider>
+  );
 }
- 
