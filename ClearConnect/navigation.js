@@ -6,14 +6,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 
 import IndexScreen from './screens/index';
-import ContactsScreen from './screens/ContactsScreen';
-import UserGuideScreen from './screens/UserGuideScreen';
-import HelpScreen from './screens/HelpScreen';
+import ContactsScreen from './screens/messageScreen';
+import UserGuideScreen from './screens/HealthMetricScreen';
+import HelpScreen from './screens/NotificationScreen';
 import PatientLoginScreen from './screens/Patient_login';
 import DoctorLoginScreen from './screens/Doctor_login';
-import DashboardScreen from './screens/DoctorDashboardScreen';
+import DoctorDashboardScreen from './screens/DoctorDashboardScreen'; 
+import ChatScreen from './screens/ChatScreen';
 
-import { AuthContext } from './AuthContext'; // Import AuthContext
+
+import { AuthContext } from './AuthContext'; 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -116,7 +118,7 @@ function CommonStack({ component, title }) {
           />
           <Stack.Screen
             name="Dashboard"
-            component={DashboardScreen}
+            component={DoctorDashboardScreen}
             options={{
               headerTitle: 'Dashboard',
               headerBackground: () => (
@@ -140,9 +142,39 @@ function CommonStack({ component, title }) {
           />
         </>
       )}
+
+      {title === 'Messages' && (
+        <>
+          <Stack.Screen
+            name="ChatScreen"
+            component={ChatScreen} 
+            options={({ route }) => ({
+              title: `Chat with ${route.params.name}`, 
+              headerBackground: () => (
+                <Image
+                  source={require('./assets/background.jpg')}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'cover',
+                  }}
+                />
+              ),
+              headerStyle: {
+                height: height * 0.13,
+                borderBottomWidth: 2,
+                borderBottomColor: '#000',
+              },
+              headerTintColor: '#f5f5dc',
+              headerTitleAlign: 'center',
+            })}
+          />
+        </>
+      )}
     </Stack.Navigator>
   );
 }
+
 
 //top bar
 function CustomTabBar({ state, descriptors, navigation }) {
@@ -186,7 +218,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
 
 //bottom tabs
 export default function Navigation() {
-  const { isLoggedIn } = useContext(AuthContext); // Add login state from context
+  const { isLoggedIn } = useContext(AuthContext); //retrieves loggedin state
 
   return (
     <NavigationContainer>
@@ -199,42 +231,61 @@ export default function Navigation() {
           },
           tabBarActiveTintColor: '#f5f5dc',
           tabBarInactiveTintColor: '#a9a9a9',
-          headerShown: false,
+          headerShown: false, 
         }}
       >
+        {/* dynamic home tab */}
         <Tab.Screen
           name="Home_"
           options={{
             tabBarLabel: 'Home',
             iconName: 'home',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome name="home" color={color} size={size} />
+            ),
           }}
-          children={() => <CommonStack component={IndexScreen} title="Home" />}
+          children={() =>
+            <CommonStack
+              component={isLoggedIn ? DoctorDashboardScreen : IndexScreen} // switching screen dynamically
+              title="Home"
+            />
+          }
         />
+        {/* tabs rendered post login*/}
         {isLoggedIn && (
           <>
             <Tab.Screen
-              name="UserGuide_"
+              name="HealthMetrics_"
               options={{
-                tabBarLabel: 'Guide',
-                iconName: 'book',
+                tabBarLabel: 'Health',
+                iconName: 'heartbeat',
+                tabBarIcon: ({ color, size }) => (
+                  <FontAwesome name="heartbeat" color={color} size={size} />
+                ),
               }}
-              children={() => <CommonStack component={UserGuideScreen} title="User Guide" />}
+              children={() => <CommonStack component={UserGuideScreen} title="Health Metrics" />}
             />
             <Tab.Screen
-              name="Contacts_"
+              name="messages_"
               options={{
-                tabBarLabel: 'Contact',
-                iconName: 'address-book',
+                tabBarLabel: 'Message',
+                iconName: 'envelope',
+                tabBarIcon: ({ color, size }) => (
+                  <FontAwesome name="envelope" color={color} size={size} />
+                ),
               }}
-              children={() => <CommonStack component={ContactsScreen} title="Contacts" />}
+              children={() => <CommonStack component={ContactsScreen} title="Messages" />}
             />
             <Tab.Screen
-              name="Help_"
+              name="Notifications_"
               options={{
-                tabBarLabel: 'Help',
-                iconName: 'question-circle',
+                tabBarLabel: 'Alerts',
+                iconName: 'bell',
+                tabBarIcon: ({ color, size }) => (
+                  <FontAwesome name="bell" color={color} size={size} />
+                ),
               }}
-              children={() => <CommonStack component={HelpScreen} title="Help" />}
+              children={() => <CommonStack component={HelpScreen} title="Alerts" />}
             />
           </>
         )}
@@ -242,6 +293,7 @@ export default function Navigation() {
     </NavigationContainer>
   );
 }
+
 
 const styles = StyleSheet.create({
   tabBarBackground: {

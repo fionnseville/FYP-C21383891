@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function UserGuideScreen() {
+export default function Notifications() {
   return (
     <View style={styles.container}>
-      <Text>User Guide</Text>
+      <Text>Help</Text>
     </View>
   );
 }

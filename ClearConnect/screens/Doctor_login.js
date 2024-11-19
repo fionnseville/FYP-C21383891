@@ -1,19 +1,24 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { AuthContext } from '../AuthContext'; // Ensure this path is correct
+import { AuthContext } from '../AuthContext'; 
 import { useNavigation } from '@react-navigation/native';
 
 export default function Doctor_login() {
-  const { setIsLoggedIn } = useContext(AuthContext); // Access setIsLoggedIn from AuthContext
+  const { setIsLoggedIn } = useContext(AuthContext); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation(); // Use navigation for transitions
+  const navigation = useNavigation(); 
 
   const handleLogin = () => {
     if (email && password) {
-      setIsLoggedIn(true); // Mark user as logged in
+      setIsLoggedIn(true); // setting user as logged in 
       Alert.alert('Login Successful', `Welcome, ${email}!`);
-      navigation.navigate('Home_'); // Navigate to the home screen
+      navigation.navigate('Dashboard');
+      
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Dashboard' }], //resetting the route post login
+      });  
     } else {
       Alert.alert('Error', 'Please enter both email and password.');
     }

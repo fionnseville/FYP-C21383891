@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function DashboardScreen() {
+export default function DoctorDashboardScreen() {
   return (
     <View style={styles.container}>
       <Text>Doctor Dashboard</Text>
@@ -16,3 +16,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+

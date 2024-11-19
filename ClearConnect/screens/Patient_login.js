@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { AuthContext } from '../AuthContext'; 
+import { useNavigation } from '@react-navigation/native';
 
 export default function Patient_login() {
+  const { setIsLoggedIn } = useContext(AuthContext); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation(); 
 
   const handleLogin = () => {
-    //filler logic
     if (email && password) {
+      setIsLoggedIn(true); // sets user as logged in
       Alert.alert('Login Successful', `Welcome, ${email}!`);
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Dashboard' }], //resetting the route post login
+      });
     } else {
       Alert.alert('Error', 'Please enter both email and password.');
     }
@@ -17,7 +26,6 @@ export default function Patient_login() {
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Patient Login</Text>
-      
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -26,7 +34,6 @@ export default function Patient_login() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -34,7 +41,6 @@ export default function Patient_login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
