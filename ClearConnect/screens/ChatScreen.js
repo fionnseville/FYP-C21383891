@@ -1,20 +1,53 @@
-import React, { useState } from 'react';
-import {View,Text,StyleSheet,TextInput,TouchableOpacity,FlatList,KeyboardAvoidingView,Platform,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { collection, addDoc, query, where, getDocs, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebaseconfig';
 
 export default function ChatScreen({ route }) {
   const { chatId, name } = route.params; 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  const sendMessage = () => {
+  const currentUserId = 'cR6yuMS9S7KRbj4H2KDb';  // will be replaced with current session user 
+
+  // fetches messages between users
+  useEffect(() => {
+    const q = query(
+      collection(db, 'messages'),
+      where('senderId', 'in', [currentUserId, chatId]),
+      where('receiverId', 'in', [currentUserId, chatId]),
+      orderBy('timestamp', 'asc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const chatMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(chatMessages);
+    });
+
+    return unsubscribe; 
+  }, []);
+
+  
+  const sendMessage = async () => {
     if (input.trim()) {
-      setMessages([...messages, { id: Date.now(), text: input }]);
-      setInput('');
+      try {
+        await addDoc(collection(db, 'messages'), {
+          senderId: currentUserId,
+          receiverId: chatId,
+          messageText: input,
+          timestamp: serverTimestamp(),//timestamp in order to order messages
+        });
+        setInput('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
   };
 
   return (
-    //keeping keyboard above keyboard on mobile
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
@@ -23,10 +56,10 @@ export default function ChatScreen({ route }) {
       <Text style={styles.chatHeader}>Chat with {name}</Text>
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.messageBubble}>
-            <Text>{item.text}</Text>
+          <View style={[styles.messageBubble, item.senderId === currentUserId ? styles.sentMessage : styles.receivedMessage]}>
+            <Text>{item.messageText}</Text>
           </View>
         )}
       />
@@ -58,11 +91,18 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     padding: 10,
-    backgroundColor: '#e1ffc7',
     borderRadius: 5,
     marginVertical: 5,
-    alignSelf: 'flex-start',
     maxWidth: '80%',
+  },
+  sentMessage: {
+    backgroundColor: '#007bff',
+    alignSelf: 'flex-end',
+    color: '#fff',
+  },
+  receivedMessage: {
+    backgroundColor: '#e1ffc7',
+    alignSelf: 'flex-start',
   },
   inputContainer: {
     flexDirection: 'row',

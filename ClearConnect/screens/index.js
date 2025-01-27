@@ -8,6 +8,7 @@ export default function IndexScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
+        
         <View style={styles.buttonRow}>
           <TouchableOpacity 
             style={styles.button} 
@@ -23,6 +24,16 @@ export default function IndexScreen({ navigation }) {
             <Text style={styles.buttonText}>Patient</Text>
           </TouchableOpacity>
         </View>
+
+        <View style={styles.registerButtonContainer}>
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.buttonText}>Register an Account</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </View>
   );
@@ -41,10 +52,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonRow: {
-    flexDirection: 'row',
+    flexDirection: 'row',  // puts doctor and patient logins next to eachother
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+  },
+  registerButtonContainer: {
+    marginTop: 30,  
+    alignItems: 'center',  
   },
   button: {
     backgroundColor: '#003366',

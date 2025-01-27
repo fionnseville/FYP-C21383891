@@ -13,6 +13,7 @@ import PatientLoginScreen from './screens/Patient_login';
 import DoctorLoginScreen from './screens/Doctor_login';
 import DoctorDashboardScreen from './screens/DoctorDashboardScreen'; 
 import ChatScreen from './screens/ChatScreen';
+import RegisterScreen from './screens/registry';
 
 
 import { AuthContext } from './AuthContext'; 
@@ -117,6 +118,35 @@ function CommonStack({ component, title }) {
             }}
           />
           <Stack.Screen
+          name="Register"
+          component={RegisterScreen}  
+          options={{
+            headerTitle: () => (
+              <Image
+                source={require('./assets/final_cleaned_icon.png')}
+                style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
+              />
+            ),
+            headerBackground: () => (
+              <Image
+                source={require('./assets/background.jpg')}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  resizeMode: 'cover',
+                }}
+              />
+            ),
+            headerStyle: {
+              height: height * 0.13,
+              borderBottomWidth: 2,
+              borderBottomColor: '#000',
+            },
+            headerTintColor: '#f5f5dc',
+            headerTitleAlign: 'center',
+          }}
+        />
+          <Stack.Screen
             name="Dashboard"
             component={DoctorDashboardScreen}
             options={{
@@ -140,6 +170,7 @@ function CommonStack({ component, title }) {
               headerTitleAlign: 'center',
             }}
           />
+          
         </>
       )}
 

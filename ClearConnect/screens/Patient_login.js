@@ -1,23 +1,62 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { AuthContext } from '../AuthContext'; 
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebaseconfig';  
 import { useNavigation } from '@react-navigation/native';
+import { sha256 } from 'js-sha256';  
+import { AuthContext } from '../AuthContext';  // Import authentication context
 
 export default function Patient_login() {
-  const { setIsLoggedIn } = useContext(AuthContext); 
+  const { setIsLoggedIn } = useContext(AuthContext);  // Restore authentication state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (email && password) {
-      setIsLoggedIn(true); // sets user as logged in
-      Alert.alert('Login Successful', `Welcome, ${email}!`);
+      try {
+        // converts to lower case
+        const trimmedEmail = email.trim().toLowerCase();
+        
+        // queries store for email
+        const usersCollection = collection(db, 'users');
+        const q = query(usersCollection, where("email", "==", trimmedEmail));
+        const querySnapshot = await getDocs(q);
 
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Dashboard' }], //resetting the route post login
-      });
+        if (querySnapshot.empty) {
+          Alert.alert('Login Failed', 'Invalid email or password');
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          
+          // password is hashed to reduce risk in event of data leak
+          const hashedPassword = sha256(password);
+
+          //console.log("Entered hashed password:", hashedPassword);
+          //console.log("Stored password hash:", userData.passhash);
+
+          if (userData.passhash === hashedPassword) {
+            Alert.alert('Login Successful', `Welcome, ${userData.firstname} ${userData.surname}!`);
+            
+            // sets authentication state
+            setIsLoggedIn(true);
+
+            // resets navigation route on successful login and updates nav bar
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Dashboard' }],
+            });
+          } else {
+            Alert.alert('Login Failed', 'Incorrect password');
+          }
+        });
+
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        Alert.alert('Error', 'Something went wrong');
+      }
     } else {
       Alert.alert('Error', 'Please enter both email and password.');
     }
