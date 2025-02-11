@@ -4,10 +4,10 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseconfig';  
 import { useNavigation } from '@react-navigation/native';
 import { sha256 } from 'js-sha256';  
-import { AuthContext } from '../AuthContext';  // Import authentication context
+import { AuthContext } from '../AuthContext';  
 
 export default function Patient_login() {
-  const { setIsLoggedIn } = useContext(AuthContext);  // Restore authentication state
+  const { login } = useContext(AuthContext);  // used to restore the session from last use 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
@@ -38,16 +38,31 @@ export default function Patient_login() {
           //console.log("Stored password hash:", userData.passhash);
 
           if (userData.passhash === hashedPassword) {
-            Alert.alert('Login Successful', `Welcome, ${userData.firstname} ${userData.surname}!`);
-            
-            // sets authentication state
-            setIsLoggedIn(true);
+            if (userData.role === 0) {  // Ensure the user is a patient
+              
+              // Save user session
+              const sessionData = {
+                id: doc.id,
+                email: userData.email,
+                firstname: userData.firstname.trim(),
+                surname: userData.surname.trim(),
+                dob: userData.dob,
+                gender: userData.gender,
+                role: userData.role,
+              };
 
-            // resets navigation route on successful login and updates nav bar
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Dashboard' }],
-            });
+              login(sessionData);  // store session persistently
+              Alert.alert('Login Successful', `Welcome, ${userData.firstname.trim()} ${userData.surname.trim()}!`);
+
+              // resets navigation route on successful login and updates nav bar
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'PatientDashboard' }],
+              });
+
+            } else {
+              Alert.alert('Login Failed', 'Only patients can log in here.');
+            }
           } else {
             Alert.alert('Login Failed', 'Incorrect password');
           }

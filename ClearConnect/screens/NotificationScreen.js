@@ -1,10 +1,18 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { AuthContext } from '../AuthContext';
+
+//this will be moved to settings screen and then replaced with the actual notifications screen
 
 export default function Notifications() {
+  const { logout } = useContext(AuthContext);
+
   return (
     <View style={styles.container}>
-      <Text>Help</Text>
+      <Text style={styles.title}></Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -17,5 +25,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5dc',
     borderColor: '#000',
     borderWidth: 2,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#003366',
+  },
+  logoutButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    backgroundColor: '#d9534f',
+    borderRadius: 10,
+    borderColor: '#000',
+    borderWidth: 2,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

@@ -12,19 +12,39 @@ import HelpScreen from './screens/NotificationScreen';
 import PatientLoginScreen from './screens/Patient_login';
 import DoctorLoginScreen from './screens/Doctor_login';
 import DoctorDashboardScreen from './screens/DoctorDashboardScreen'; 
+import PatientDashboardScreen from './screens/PatientDashboard'
 import ChatScreen from './screens/ChatScreen';
 import RegisterScreen from './screens/registry';
+import SettingsScreen from './screens/SettingsScreen';
+import { Platform } from 'react-native';
 
 
 import { AuthContext } from './AuthContext'; 
+//import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
+
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const { height, width } = Dimensions.get('window');
 const baseFontSize = Math.min(width, height) * 0.05;
 
+
+function SettingsButton() {
+  const navigation = useNavigation();
+
+  return (
+    <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
+      <FontAwesome name="cog" size={32} color="#ffffff" />
+    </TouchableOpacity>
+  );
+}
+
 //common stack
-function CommonStack({ component, title }) {
+function CommonStack({ component, title ,isLoggedIn}) {
+  //const { isLoggedIn } = useContext(AuthContext); 
+  console.log('navigation - isLoggedIn:', isLoggedIn);
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -32,10 +52,14 @@ function CommonStack({ component, title }) {
         component={component}
         options={{
           headerTitle: () => (
-            <Image
-              source={require('./assets/final_cleaned_icon.png')}
-              style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
-            />
+            //<SafeAreaView>
+              <Image
+                source={require('./assets/final_cleaned_icon.png')}
+                //style={styles.floatingImage}
+                style={{ width: Math.min(baseFontSize * 2.8), height: Math.min(baseFontSize * 2.65), resizeMode: 'contain', marginTop: Platform.OS === 'ios' ? -6 : 0 ,zIndex: 999}}
+                
+              />
+            //</SafeAreaView>
           ),
           headerBackground: () => (
             <Image
@@ -54,8 +78,12 @@ function CommonStack({ component, title }) {
           },
           headerTintColor: '#f5f5dc',
           headerTitleAlign: 'center',
+          //headerRight: isLoggedIn ? () => <LogoutButton /> : null, 
+          //headerRight: () => <SettingsButton />,
+          headerRight: isLoggedIn ? () => <SettingsButton /> : null,
         }}
       />
+
 
       {title === 'Home' && (
         <>
@@ -66,7 +94,8 @@ function CommonStack({ component, title }) {
               headerTitle: () => (
                 <Image
                   source={require('./assets/final_cleaned_icon.png')}
-                  style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
+                  //style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
+                  style={{ width: Math.min(baseFontSize * 2.8), height: Math.min(baseFontSize * 2.65), resizeMode: 'contain', marginTop: Platform.OS === 'ios' ? -6 : 0 ,zIndex: 999}}
                 />
               ),
               headerBackground: () => (
@@ -95,7 +124,8 @@ function CommonStack({ component, title }) {
               headerTitle: () => (
                 <Image
                   source={require('./assets/final_cleaned_icon.png')}
-                  style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
+                  style={{ width: Math.min(baseFontSize * 2.8), height: Math.min(baseFontSize * 2.65), resizeMode: 'contain', marginTop: Platform.OS === 'ios' ? -6 : 0 ,zIndex: 999}}
+                  //style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
                 />
               ),
               headerBackground: () => (
@@ -118,34 +148,60 @@ function CommonStack({ component, title }) {
             }}
           />
           <Stack.Screen
-          name="Register"
-          component={RegisterScreen}  
-          options={{
-            headerTitle: () => (
-              <Image
-                source={require('./assets/final_cleaned_icon.png')}
-                style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
-              />
-            ),
-            headerBackground: () => (
-              <Image
-                source={require('./assets/background.jpg')}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  resizeMode: 'cover',
-                }}
-              />
-            ),
-            headerStyle: {
-              height: height * 0.13,
-              borderBottomWidth: 2,
-              borderBottomColor: '#000',
-            },
-            headerTintColor: '#f5f5dc',
-            headerTitleAlign: 'center',
-          }}
-        />
+            name="PatientDashboard"
+            component={PatientDashboardScreen}
+            options={{
+              headerTitle: 'Patient Dashboard',
+              headerBackground: () => (
+                <Image
+                  source={require('./assets/background.jpg')}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'cover',
+                  }}
+                />
+              ),
+              headerStyle: {
+                height: height * 0.13,
+                borderBottomWidth: 2,
+                borderBottomColor: '#000',
+              },
+              headerTintColor: '#f5f5dc',
+              headerTitleAlign: 'center',
+              headerRight: isLoggedIn ? () => <SettingsButton /> : null,
+            }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{
+              headerTitle: () => (
+                <Image
+                  source={require('./assets/final_cleaned_icon.png')}
+                  //style={{ width: Math.min(baseFontSize * 3), height: Math.min(baseFontSize * 3), resizeMode: 'contain', marginTop: -13 }}
+                  style={{ width: Math.min(baseFontSize * 2.8), height: Math.min(baseFontSize * 2.65), resizeMode: 'contain', marginTop: Platform.OS === 'ios' ? -6 : 0 ,zIndex: 999}}
+                />
+              ),
+              headerBackground: () => (
+                <Image
+                  source={require('./assets/background.jpg')}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'cover',
+                  }}
+                />
+              ),
+              headerStyle: {
+                height: height * 0.13,
+                borderBottomWidth: 2,
+                borderBottomColor: '#000',
+              },
+              headerTintColor: '#f5f5dc',
+              headerTitleAlign: 'center',
+            }}
+          />
           <Stack.Screen
             name="Dashboard"
             component={DoctorDashboardScreen}
@@ -170,9 +226,9 @@ function CommonStack({ component, title }) {
               headerTitleAlign: 'center',
             }}
           />
-          
         </>
       )}
+
 
       {title === 'Messages' && (
         <>
@@ -202,6 +258,30 @@ function CommonStack({ component, title }) {
           />
         </>
       )}
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: "Settings",
+          headerBackground: () => (
+            <Image
+              source={require('./assets/background.jpg')}
+              style={{
+                width: '100%',
+                height: '100%',
+                resizeMode: 'cover',
+              }}
+            />
+          ),
+          headerStyle: {
+            height: height * 0.13,
+            borderBottomWidth: 2,
+            borderBottomColor: '#000',
+          },
+          headerTintColor: '#f5f5dc',
+          headerTitleAlign: 'center',
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -252,7 +332,7 @@ export default function Navigation() {
   const { isLoggedIn } = useContext(AuthContext); //retrieves loggedin state
 
   return (
-    <NavigationContainer>
+    
       <Tab.Navigator
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
@@ -277,7 +357,8 @@ export default function Navigation() {
           }}
           children={() =>
             <CommonStack
-              component={isLoggedIn ? DoctorDashboardScreen : IndexScreen} // switching screen dynamically
+              component={isLoggedIn ? PatientDashboardScreen : IndexScreen} // switching screen dynamically
+              isLoggedIn={isLoggedIn}//passes state to common stack 
               title="Home"
             />
           }
@@ -285,7 +366,7 @@ export default function Navigation() {
         {/* tabs rendered post login*/}
         {isLoggedIn && (
           <>
-            <Tab.Screen
+            <Tab.Screen  
               name="HealthMetrics_"
               options={{
                 tabBarLabel: 'Health',
@@ -294,7 +375,7 @@ export default function Navigation() {
                   <FontAwesome name="heartbeat" color={color} size={size} />
                 ),
               }}
-              children={() => <CommonStack component={UserGuideScreen} title="Health Metrics" />}
+              children={() => <CommonStack component={UserGuideScreen} title="Health Metrics" isLoggedIn={isLoggedIn}/>}
             />
             <Tab.Screen
               name="messages_"
@@ -305,7 +386,7 @@ export default function Navigation() {
                   <FontAwesome name="envelope" color={color} size={size} />
                 ),
               }}
-              children={() => <CommonStack component={ContactsScreen} title="Messages" />}
+              children={() => <CommonStack component={ContactsScreen} title="Messages" isLoggedIn={isLoggedIn}/>}
             />
             <Tab.Screen
               name="Notifications_"
@@ -316,12 +397,12 @@ export default function Navigation() {
                   <FontAwesome name="bell" color={color} size={size} />
                 ),
               }}
-              children={() => <CommonStack component={HelpScreen} title="Alerts" />}
-            />
+              children={() => <CommonStack component={HelpScreen} title="Alerts" isLoggedIn={isLoggedIn}/>}
+            /> 
           </>
         )}
       </Tab.Navigator>
-    </NavigationContainer>
+    
   );
 }
 

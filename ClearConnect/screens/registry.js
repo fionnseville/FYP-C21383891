@@ -28,8 +28,11 @@ export default function RegisterScreen() {
     try {
       const hashedPassword = sha256(password);
   
-      const formattedDob = dob.toISOString().split('T')[0];//formats dob 
+      //const formattedDob = dob.toISOString().split('T')[0];//formats dob 
   
+      const formattedDob = new Date(dob).toLocaleDateString('en-GB');
+    
+
       const roleValue = role === 'doctor' ? 1 : 0;  // 1 for doctor, 0 for patient
       const genderValue = gender === 'male' ? 1 : gender === 'female' ? 0 : 2;  // 1 for male, 0 for female, 2 for other
   
@@ -148,7 +151,6 @@ export default function RegisterScreen() {
           <Text style={styles.roleButtonText}>Role: {role.toUpperCase()}</Text>
         </TouchableOpacity>
 
-        {/*register button */}
         <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>Register</Text>
         </TouchableOpacity>

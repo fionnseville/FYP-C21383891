@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
-import { collection, addDoc, query, where, getDocs, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebaseconfig';
+import { AuthContext } from '../AuthContext';
+
+
+
 
 export default function ChatScreen({ route }) {
   const { chatId, name } = route.params; 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-
-  const currentUserId = 'cR6yuMS9S7KRbj4H2KDb';  // will be replaced with current session user 
+  
+  const { user } = useContext(AuthContext);  
+  const currentUserId = user?.id;  // Retrieve user ID from session
 
   // fetches messages between users
   useEffect(() => {
+    if (!currentUserId) return;  // checks currentUserId is available before querying
+
     const q = query(
       collection(db, 'messages'),
       where('senderId', 'in', [currentUserId, chatId]),
@@ -28,9 +35,8 @@ export default function ChatScreen({ route }) {
     });
 
     return unsubscribe; 
-  }, []);
+  }, [currentUserId, chatId]);
 
-  
   const sendMessage = async () => {
     if (input.trim()) {
       try {
@@ -38,20 +44,22 @@ export default function ChatScreen({ route }) {
           senderId: currentUserId,
           receiverId: chatId,
           messageText: input,
-          timestamp: serverTimestamp(),//timestamp in order to order messages
+          timestamp: serverTimestamp(),  // timestamp in order to order messages
         });
         setInput('');
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
+
+    
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-      keyboardVerticalOffset={90} 
+      keyboardVerticalOffset={90} //keyboardVerticalOffset={100}
     >
       <Text style={styles.chatHeader}>Chat with {name}</Text>
       <FlatList
@@ -67,6 +75,7 @@ export default function ChatScreen({ route }) {
         <TextInput
           style={styles.input}
           placeholder="Type your message"
+          placeholderTextColor="#888"  
           value={input}
           onChangeText={setInput}
         />
@@ -99,16 +108,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     alignSelf: 'flex-end',
     color: '#fff',
+    borderRadius: 12,
   },
   receivedMessage: {
     backgroundColor: '#e1ffc7',
     alignSelf: 'flex-start',
+    borderRadius: 12,
   },
+  /*inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    paddingBottom: 10,  
+    borderRadius: 15
+  },*/
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-  },
+    paddingBottom: 10,
+    backgroundColor: '#fff',  
+    borderRadius: 20,  
+    padding: 10,  
+    borderWidth: 1,  
+    borderColor: '#ccc',  
+    shadowColor: "#000",  
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, //android shadow 
+    marginBottom: 10,
+  },    
   input: {
     flex: 1,
     borderWidth: 1,
